@@ -21,7 +21,7 @@ def alumnosGuardar():
     nombreapellido = request.form["txtNombreApellidoFA"]
     return f"Matrícula {matricula} Nombre y Apellido {nombreapellido}"
 
-@app.route("/evento")
+@app.route("/registrar", methods=["GET"])
 def evento():
     pusher_client = pusher.Pusher(
         app_id="1714541",
