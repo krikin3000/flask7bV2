@@ -40,8 +40,9 @@
             var channel = pusher.subscribe("canalRegistrosTemperatura");
 
             //           Evento
-            channel.bind("registroTemperatura", function (data) {
-                alert("Ocurrió el evento")
+            channel.bind("registroTemperatura", function (temperaturaHumedad) {
+                // alert("Ocurrió el evento")
+                console.log(temperaturaHumedad)
             })
         })
     </script>    
