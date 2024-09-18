@@ -31,4 +31,4 @@ def evento():
         ssl=True
     )
     
-    pusher_client.trigger("my-channel", "my-event", {})
+    pusher_client.trigger("canalRegistrosTemperatura", "registroTemperatura", {})
