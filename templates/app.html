@@ -30,6 +30,22 @@
 
     <script>
         window.addEventListener("load", function (event) {
+            function buscar() {
+                $.get("/buscar", function (respuesta) {
+                    console.log(respuesta)
+
+                    $("#tbodyTemperaturaHumedad").html("")
+
+                    for (var x in respuesta) {
+                        $("#tbodyTemperaturaHumedad").append(`<tr>
+                            <td>${temperaturaHumedad[1]}</td>
+                            <td>${temperaturaHumedad[2]}</td>
+                            <td></td>
+                        </tr>`)
+                    }
+                })
+            }
+
             // Enable pusher logging - don't include this in production
             Pusher.logToConsole = true
             
@@ -43,12 +59,14 @@
             //           Evento
             channel.bind("registroTemperaturaHumedad", function (temperaturaHumedad) {
                 // alert("Ocurrió el evento")
-                console.log(temperaturaHumedad)
+                // console.log(temperaturaHumedad)
+                /**
                 $("#tbodyTemperaturaHumedad").prepend(`<tr>
                     <td>${temperaturaHumedad.temperatura}</td>
                     <td>${temperaturaHumedad.humedad}</td>
                     <td></td>
                 </tr>`)
+                */
             })
         })
     </script>    
