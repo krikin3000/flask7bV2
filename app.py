@@ -21,7 +21,7 @@ def alumnosGuardar():
     nombreapellido = request.form["txtNombreApellidoFA"]
     return f"Matrícula {matricula} Nombre y Apellido {nombreapellido}"
 
-@app.route("/registrar")
+@app.route("/registrar", methods=["GET"])
 def registrar():
     pusher_client = pusher.Pusher(
         app_id="1714541",
@@ -31,4 +31,4 @@ def registrar():
         ssl=True
     )
 
-    pusher_client.trigger("canalRegistrosTemperaturaHumedad", "registroTemperaturaHumedad", {"temperatura": 33, "humedad": 0.15})
+    pusher_client.trigger("canalRegistrosTemperaturaHumedad", "registroTemperaturaHumedad", request.args)
