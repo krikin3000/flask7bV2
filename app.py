@@ -36,7 +36,7 @@ def alumnosGuardar():
     return f"Matrícula {matricula} Nombre y Apellido {nombreapellido}"
 
 @app.route("/buscar")
-def buscar()
+def buscar():
     if not con.is_connected():
         con.reconnect()
     cursor = con.cursor()
