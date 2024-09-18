@@ -8,6 +8,8 @@
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+
     <title>APP</title>
 </head>
 <body>
@@ -27,6 +29,17 @@
 
     <script>
         window.addEventListener("load", function (event) {
+            // Enable pusher logging - don't include this in production
+            Pusher.logToConsole = true
+            
+            var pusher = new Pusher("cda1cc599395d699a2af", {
+                cluster: "us2"
+            })
+            
+            var channel = pusher.subscribe("my-channel");
+            channel.bind("my-event", function(data) {
+                alert("Ocurrió el evento")
+            })
         })
     </script>    
 </body>
