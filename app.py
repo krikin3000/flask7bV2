@@ -22,7 +22,7 @@ def alumnosGuardar():
     return f"Matrícula {matricula} Nombre y Apellido {nombreapellido}"
 
 @app.route("/registrar", methods=["GET"])
-def evento():
+def registrar():
     pusher_client = pusher.Pusher(
         app_id="1714541",
         key="cda1cc599395d699a2af",
