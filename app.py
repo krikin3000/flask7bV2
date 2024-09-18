@@ -31,4 +31,4 @@ def registrar():
         ssl=True
     )
     
-    pusher_client.trigger("canalRegistrosTemperatura", "registroTemperatura", {})
+    pusher_client.trigger("canalRegistrosTemperatura", "registroTemperatura", {temperatura: 33, humedad: 0.15})
