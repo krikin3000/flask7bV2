@@ -35,9 +35,12 @@
             var pusher = new Pusher("cda1cc599395d699a2af", {
                 cluster: "us2"
             })
-            
-            var channel = pusher.subscribe("my-channel");
-            channel.bind("my-event", function(data) {
+
+            //                            Canal
+            var channel = pusher.subscribe("canalRegistrosTemperatura");
+
+            //           Evento
+            channel.bind("registroTemperatura", function (data) {
                 alert("Ocurrió el evento")
             })
         })
