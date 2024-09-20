@@ -53,7 +53,7 @@ def registrar():
 
     if not con.is_connected():
         con.reconnect()
-    cursor = mydb.cursor()
+    cursor = con.cursor()
 
     sql = "INSERT INTO sensor_log (Temperatura, Humedad, Fecha_Hora) VALUES (%s, %s, %s)"
     val = (args["temperatura"], args["humedad"], datetime.datetime.now(pytz.timezone("America/Matamoros")))
@@ -70,4 +70,5 @@ def registrar():
         ssl=True
     )
 
-    pusher_client.trigger("canalRegistrosTemperaturaHumedad", "registroTemperaturaHumedad", request.args)
+    pusher_client.trigger("canalRegistrosTemperaturaHumedad", "registroTemperaturaHumedad", args)
+    return args
