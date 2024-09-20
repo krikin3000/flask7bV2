@@ -43,11 +43,25 @@ def buscar():
     cursor.execute("SELECT * FROM sensor_log")
 
     registros = cursor.fetchall()
+    con.close()
 
     return registros
 
 @app.route("/registrar", methods=["GET"])
 def registrar():
+    args = request.args
+
+    if not con.is_connected():
+        con.reconnect()
+    cursor = mydb.cursor()
+
+    sql = "INSERT INTO sensor_log (Temperatura, Humedad, Fecha_Hora) VALUES (%s, %s, %s)"
+    val = (args["temperatura"], args["humedad"], datetime.datetime.now(pytz.timezone("America/Matamoros")))
+    cursor.execute(sql, val)
+    
+    con.commit()
+    con.close()
+
     pusher_client = pusher.Pusher(
         app_id="1714541",
         key="2df86616075904231311",
