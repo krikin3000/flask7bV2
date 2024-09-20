@@ -50,8 +50,8 @@ def buscar():
 def registrar():
     pusher_client = pusher.Pusher(
         app_id="1714541",
-        key="cda1cc599395d699a2af",
-        secret="9e9c00fc36600060d9e2",
+        key="2df86616075904231311",
+        secret="2f91d936fd43d8e85a1a",
         cluster="us2",
         ssl=True
     )
