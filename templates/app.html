@@ -30,8 +30,10 @@
 
     <script>
         window.addEventListener("load", function (event) {
+            // Realizamos un SELECT a la BD con FLASK y lo imprimimos en el TBODY
             function buscar() {
                 $.get("/buscar", function (respuesta) {
+                    // Imprimimos la respuesta de FLASK con SELECT para saber cómo acceder a cada valor y colocarlos en el TBODY
                     // console.log(respuesta)
 
                     $("#tbodyTemperaturaHumedad").html("")
@@ -49,20 +51,24 @@
 
             buscar()
 
-            // Enable pusher logging - don't include this in production
             Pusher.logToConsole = true
             
             var pusher = new Pusher("2df86616075904231311", {
                 cluster: "us2"
             })
 
-            //                            Canal
+            // Canal ---> Donde se concentran los hilos con los clientes conectados
             var channel = pusher.subscribe("canalRegistrosTemperaturaHumedad");
 
-            //           Evento
+            // Evento --> El código que se accionará con la información enviada o el uso del canal
             channel.bind("registroTemperaturaHumedad", function (temperaturaHumedad) {
+                // 1. Notificar el evento
                 // alert("Ocurrió el evento")
+
+                // 2. Recibir información enviada en el evento
                 // console.log(temperaturaHumedad)
+
+                // 3. Trabajar información enviada por el evento
                 /**
                 $("#tbodyTemperaturaHumedad").prepend(`<tr>
                     <td>${temperaturaHumedad.temperatura}</td>
@@ -70,6 +76,8 @@
                     <td></td>
                 </tr>`)
                 */
+
+                // 4. Mandar a llamar otro código luego del evento
                 buscar()
             })
         })
