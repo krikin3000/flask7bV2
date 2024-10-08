@@ -18,12 +18,16 @@
           <input type="hidden" id="id" name="id">
 
           <div class="mb-1">
-              <label for="temperatura">Temperatura</label>
-              <input type="number" id="temperatura" name="temperatura" class="form-control">
+              <label for="Nombre_Apellido">Nombre y Apellido</label>
+              <input type="text" id="Nombre_Apellido" name="Nombre_Apellido" class="form-control">
+          </div>
+           <div class="mb-1">
+              <label for="Comentario">Comentario</label>
+              <input type="text" id="Comentario" name="Comentario" class="form-control">
           </div>
           <div class="mb-1">
-              <label for="humedad">Humedad</label>
-              <input type="number" id="humedad" name="humedad" class="form-control">
+              <label for="Calificacion">Calificacion</label>
+              <input type="number" id="Calificacion" name="Calificacion" class="form-control">
           </div>
           <div class="mb-1">
               <button id="guardar" name="guardar" class="btn btn-dark">Guardar</button>
@@ -33,10 +37,9 @@
       <table class="table table-sm">
         <thead>
           <tr>
-            <th>Temperatura</th>
-            <th>Humedad</th>
-            <th>Fecha</th>
-            <th>Hora</th>
+            <th>Nombre y Apellido</th>
+            <th>Comentario</th>
+            <th>Calificacion</th>
             <th></th>
           </tr>
         </thead>
@@ -124,22 +127,13 @@
                     for (var x in respuesta) {
                         var temperaturaHumedad = respuesta[x]
 
-                        var fecha = ""
-                        var fechaTemp = temperaturaHumedad["Fecha"]
-
-                        if (fechaAnterior != fechaTemp) {
-                            fecha         = fechaTemp
-                            fechaAnterior = fechaTemp
-                        }
-
                         $("#tbodyTemperaturaHumedad").append(`<tr>
-                            <td>${temperaturaHumedad["Temperatura"]}</td>
-                            <td>${temperaturaHumedad["Humedad"]}</td>
-                            <td>${fecha}</td>
-                            <td>${temperaturaHumedad["Hora"]}</td>
+                            <td>${temperaturaHumedad["Nombre_Apellido"]}</td>
+                            <td>${temperaturaHumedad["Comentario"]}</td>
+                            <td>${temperaturaHumedad["Calificacion"]}</td>
                             <td>
-                                <button class="btn btn-primary btn-editar" data-id="${temperaturaHumedad["Id_Log"]}">Editar</button>
-                                <button class="btn btn-danger btn-eliminar" data-id="${temperaturaHumedad["Id_Log"]}">Eliminar</button>
+                                <button class="btn btn-primary btn-editar" data-id="${temperaturaHumedad["id_Experiencia"]}">Editar</button>
+                                <button class="btn btn-danger btn-eliminar" data-id="${temperaturaHumedad["id_Experiencia"]}">Eliminar</button>
                             </td>
                         </tr>`)
                     }
@@ -156,11 +150,11 @@
                     var temperaturaHumedad = respuesta[0]
 
                     $("#id")
-                    .val(temperaturaHumedad["Id_Log"])
+                    .val(temperaturaHumedad["id"])
                     .trigger("focus")
 
-                    $("#temperatura").val(temperaturaHumedad["Temperatura"])
-                    $("#humedad").val(temperaturaHumedad["Humedad"])
+                    $("#Nombre_Apellido").val(temperaturaHumedad["Nombre_Apellido"])
+                    $("#Comentario").val(temperaturaHumedad["Comentario"])
                 })
             })
             
@@ -188,9 +182,9 @@
 
             Pusher.logToConsole = true
             
-            var pusher = new Pusher("2df86616075904231311", {
-                cluster: "us2"
-            })
+           var pusher = new Pusher('fc838f52101ac3c0e022', {
+            cluster: 'us2'
+            });
 
             // Canal ---> Donde se concentran los hilos con los clientes conectados
             var channel = pusher.subscribe("canalRegistrosTemperaturaHumedad");
