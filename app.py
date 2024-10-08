@@ -30,27 +30,14 @@ def index():
 
     return render_template("app.html")
 
-@app.route("/alumnos")
-def alumnos():
-    con.close()
-
-    return render_template("alumnos.html")
-
-@app.route("/alumnos/guardar", methods=["POST"])
-def alumnosGuardar():
-    con.close()
-    matricula      = request.form["txtMatriculaFA"]
-    nombreapellido = request.form["txtNombreApellidoFA"]
-
-    return f"Matrícula {matricula} Nombre y Apellido {nombreapellido}"
 
 # Código usado en las prácticas
 def notificarActualizacionTemperaturaHumedad():
     pusher_client = pusher.Pusher(
-        app_id="1714541",
-        key="2df86616075904231311",
-        secret="2f91d936fd43d8e85a1a",
-        cluster="us2",
+        app_id='1766037',
+        key='fc838f52101ac3c0e022',
+        secret='f9f1bc16656c8d474a72',
+        cluster='us2',
         ssl=True
     )
 
@@ -63,8 +50,8 @@ def buscar():
 
     cursor = con.cursor(dictionary=True)
     cursor.execute("""
-    SELECT Id_Log, Temperatura, Humedad, DATE_FORMAT(Fecha_Hora, '%d/%m/%Y') AS Fecha, DATE_FORMAT(Fecha_Hora, '%H:%i:%s') AS Hora FROM sensor_log
-    ORDER BY Id_Log DESC
+    SELECT id_Experiencia, Nombre_Apellido, Comentario, Calificacion FROM tst0_experiencias
+    ORDER BY id_Experiencia DESC
     LIMIT 10 OFFSET 0
     """)
     registros = cursor.fetchall()
@@ -79,26 +66,27 @@ def guardar():
         con.reconnect()
 
     id          = request.form["id"]
-    temperatura = request.form["temperatura"]
-    humedad     = request.form["humedad"]
-    fechahora   = datetime.datetime.now(pytz.timezone("America/Matamoros"))
+    Nombre_Apellido = request.form["txtnombre_apellido"]
+    Comentario = request.form["txtcomentario"]
+    Calificacion   = request.form["txtcalificacion"]
     
     cursor = con.cursor()
 
     if id:
         sql = """
-        UPDATE sensor_log SET
-        Temperatura = %s,
-        Humedad     = %s
-        WHERE Id_Log = %s
+        UPDATE tst0_experiencia SET
+        Nombre_Apellido = %s,
+        Comentario     = %s,
+        Calificacion     = %s
+        WHERE Id_Experiencia = %s
         """
-        val = (temperatura, humedad, id)
+        val = (id, Nombre_Apellido, Comentario, Calificacion)
     else:
         sql = """
-        INSERT INTO sensor_log (Temperatura, Humedad, Fecha_Hora)
+        INSERT INTO  tst0_experiencia (Nombre_Apellido, Comentario, Calificacion)
                         VALUES (%s,          %s,      %s)
         """
-        val =                  (temperatura, humedad, fechahora)
+        val =                  (Nombre_Apellido, Comentario, Calificacion)
     
     cursor.execute(sql, val)
     con.commit()
@@ -117,8 +105,8 @@ def editar():
 
     cursor = con.cursor(dictionary=True)
     sql    = """
-    SELECT Id_Log, Temperatura, Humedad FROM sensor_log
-    WHERE Id_Log = %s
+    SELECT id_Experiencia, Nombre_Apellido, Comentario, Calificacion FROM tst0_experiencia
+    WHERE id_Experiencia = %s
     """
     val    = (id,)
 
@@ -137,8 +125,8 @@ def eliminar():
 
     cursor = con.cursor(dictionary=True)
     sql    = """
-    DELETE FROM sensor_log
-    WHERE Id_Log = %s
+    DELETE FROM tst0_experiencia
+    WHERE id_Experiencia = %s
     """
     val    = (id,)
 
