@@ -50,8 +50,8 @@ def buscar():
 
     cursor = con.cursor(dictionary=True)
     cursor.execute("""
-    SELECT Id_Experiencias, Nombre_Apellido, Comentario, Calificacion FROM tst0_experiencias
-    ORDER BY Id_Experiencias DESC
+    SELECT Id_Experiencia, Nombre_Apellido, Comentario, Calificacion FROM tst0_experienciass
+    ORDER BY Id_Experiencia DESC
     LIMIT 10 OFFSET 0
     """)
     registros = cursor.fetchall()
@@ -73,16 +73,16 @@ def guardar():
 
     if id:
         sql = """
-        UPDATE tst0_experiencia SET
+        UPDATE tst0_experiencias SET
         Nombre_Apellido = %s,
         Comentario     = %s,
         Calificacion     = %s
-        WHERE Id_Experiencias = %s
+        WHERE Id_Experiencia = %s
         """
         val = (id, Nombre_Apellido, Comentario, Calificacion)
     else:
         sql = """
-        INSERT INTO  tst0_experiencia (Nombre_Apellido, Comentario, Calificacion)
+        INSERT INTO  tst0_experiencias (Nombre_Apellido, Comentario, Calificacion)
                         VALUES (%s,          %s,      %s)
         """
         val =                  (Nombre_Apellido, Comentario, Calificacion)
@@ -104,8 +104,8 @@ def editar():
 
     cursor = con.cursor(dictionary=True)
     sql    = """
-    SELECT Id_Experiencias, Nombre_Apellido, Comentario, Calificacion FROM tst0_experiencia
-    WHERE Id_Experiencias = %s
+    SELECT Id_Experiencia, Nombre_Apellido, Comentario, Calificacion FROM tst0_experiencias
+    WHERE Id_Experiencia = %s
     """
     val    = (id,)
 
@@ -124,8 +124,8 @@ def eliminar():
 
     cursor = con.cursor(dictionary=True)
     sql    = """
-    DELETE FROM tst0_experiencia
-    WHERE Id_Experiencias = %s
+    DELETE FROM tst0_experiencias
+    WHERE Id_Experiencia = %s
     """
     val    = (id,)
 
