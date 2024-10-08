@@ -50,7 +50,7 @@ def buscar():
 
     cursor = con.cursor(dictionary=True)
     cursor.execute("""
-    SELECT Id_Experiencia, Nombre_Apellido, Comentario, Calificacion FROM tst0_experienciass
+    SELECT Id_Experiencia, Nombre_Apellido, Comentario, Calificacion FROM tst0_experiencias
     ORDER BY Id_Experiencia DESC
     LIMIT 10 OFFSET 0
     """)
