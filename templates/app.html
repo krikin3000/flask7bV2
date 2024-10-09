@@ -15,7 +15,7 @@
 <body>
     <div class="container">
       <form id="frmTemperaturaHumedad" method="post">
-          <input type="text" id="id" name="id">
+          <input type="hidden" id="id" name="id">
 
           <div class="mb-1">
               <label for="Nombre_Apellido">Nombre y Apellido</label>
@@ -132,8 +132,8 @@
                             <td>${temperaturaHumedad["Comentario"]}</td>
                             <td>${temperaturaHumedad["Calificacion"]}</td>
                             <td>
-                                <button class="btn btn-primary btn-editar" data-id="${temperaturaHumedad["id_Experiencia"]}">Editar</button>
-                                <button class="btn btn-danger btn-eliminar" data-id="${temperaturaHumedad["id_Experiencia"]}">Eliminar</button>
+                                <button class="btn btn-primary btn-editar" data-id="${temperaturaHumedad["Id_Experiencia"]}">Editar</button>
+                                <button class="btn btn-danger btn-eliminar" data-id="${temperaturaHumedad["Id_Experiencia"]}">Eliminar</button>
                             </td>
                         </tr>`)
                     }
