@@ -1,20 +1,12 @@
-# python.exe -m venv .venv
-# cd .venv/Scripts
-# activate.bat
-# py -m ensurepip --upgrade
-
 from flask import Flask
-
 from flask import render_template
 from flask import request
 from flask import jsonify, make_response
 
 import pusher
-
 import mysql.connector
-import datetime
-import pytz
 
+# Conexión a la base de datos
 con = mysql.connector.connect(
     host="185.232.14.52",
     database="u760464709_tst_sep",
@@ -24,14 +16,18 @@ con = mysql.connector.connect(
 
 app = Flask(__name__)
 
+# Función para verificar la conexión
+def check_connection():
+    if not con.is_connected():
+        con.reconnect()
+
+# Página principal
 @app.route("/")
 def index():
     con.close()
-
     return render_template("app.html")
 
-
-# Código usado en las prácticas
+# Función para notificar actualizaciones
 def notificarActualizacionTemperaturaHumedad():
     pusher_client = pusher.Pusher(
         app_id='1766037',
@@ -41,12 +37,13 @@ def notificarActualizacionTemperaturaHumedad():
         ssl=True
     )
 
+    args = {}  # Puedes definir los datos que deseas enviar
     pusher_client.trigger("canalRegistrosTemperaturaHumedad", "registroTemperaturaHumedad", args)
 
+# Ruta para buscar registros
 @app.route("/buscar")
 def buscar():
-    if not con.is_connected():
-        con.reconnect()
+    check_connection()
 
     cursor = con.cursor(dictionary=True)
     cursor.execute("""
@@ -57,36 +54,35 @@ def buscar():
     registros = cursor.fetchall()
 
     con.close()
-
     return make_response(jsonify(registros))
 
+# Ruta para guardar registros (insertar o actualizar)
 @app.route("/guardar", methods=["POST"])
 def guardar():
-    if not con.is_connected():
-        con.reconnect()
+    check_connection()
 
-    id          = request.form["id"]
+    id = request.form["id"]
     Nombre_Apellido = request.form["Nombre_Apellido"]
     Comentario = request.form["Comentario"]
-    Calificacion   = request.form["Calificacion"]
+    Calificacion = request.form["Calificacion"]
     cursor = con.cursor()
 
-    if id:
+    if id:  # Si se proporciona el ID, es una actualización
         sql = """
         UPDATE tst0_experiencias SET
         Nombre_Apellido = %s,
         Comentario     = %s,
-        Calificacion     = %s
+        Calificacion   = %s
         WHERE Id_Experiencia = %s
         """
-        val = (id, Nombre_Apellido, Comentario, Calificacion)
-    else:
+        val = (Nombre_Apellido, Comentario, Calificacion, id)
+    else:  # Si no hay ID, es una inserción
         sql = """
-        INSERT INTO  tst0_experiencias (Nombre_Apellido, Comentario, Calificacion)
-                        VALUES (%s,          %s,      %s)
+        INSERT INTO tst0_experiencias (Nombre_Apellido, Comentario, Calificacion)
+        VALUES (%s, %s, %s)
         """
-        val =                  (Nombre_Apellido, Comentario, Calificacion)
-    
+        val = (Nombre_Apellido, Comentario, Calificacion)
+
     cursor.execute(sql, val)
     con.commit()
     con.close()
@@ -95,39 +91,37 @@ def guardar():
 
     return make_response(jsonify({}))
 
+# Ruta para editar un registro (obtener datos de un registro específico)
 @app.route("/editar", methods=["GET"])
 def editar():
-    if not con.is_connected():
-        con.reconnect()
+    check_connection()
 
     id = request.args["id"]
-
     cursor = con.cursor(dictionary=True)
-    sql    = """
+    sql = """
     SELECT Id_Experiencia, Nombre_Apellido, Comentario, Calificacion FROM tst0_experiencias
     WHERE Id_Experiencia = %s
     """
-    val    = (id,)
+    val = (id,)
 
     cursor.execute(sql, val)
     registros = cursor.fetchall()
-    con.close()
 
+    con.close()
     return make_response(jsonify(registros))
 
+# Ruta para eliminar un registro
 @app.route("/eliminar", methods=["POST"])
 def eliminar():
-    if not con.is_connected():
-        con.reconnect()
+    check_connection()
 
     id = request.form["id"]
-
     cursor = con.cursor(dictionary=True)
-    sql    = """
+    sql = """
     DELETE FROM tst0_experiencias
     WHERE Id_Experiencia = %s
     """
-    val    = (id,)
+    val = (id,)
 
     cursor.execute(sql, val)
     con.commit()
