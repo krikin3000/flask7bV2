@@ -1,132 +1,144 @@
-from flask import Flask
-from flask import render_template
-from flask import request
-from flask import jsonify, make_response
-
+from flask import Flask, render_template, request, jsonify, make_response
 import pusher
 import mysql.connector
-
-# Conexión a la base de datos
-con = mysql.connector.connect(
-    host="185.232.14.52",
-    database="u760464709_tst_sep",
-    user="u760464709_tst_sep_usr",
-    password="dJ0CIAFF="
-)
+import datetime
+import pytz
 
 app = Flask(__name__)
 
-# Función para verificar la conexión
-def check_connection():
-    if not con.is_connected():
-        con.reconnect()
+class ControladorExperiencias:
+    def __init__(self):
+        self.con = mysql.connector.connect(
+            host="185.232.14.52",
+            database="u760464709_tst_sep",
+            user="u760464709_tst_sep_usr",
+            password="dJ0CIAFF="
+        )
 
-# Página principal
-@app.route("/")
-def index():
-    con.close()
-    return render_template("app.html")
+    def check_connection(self):
+        if not self.con.is_connected():
+            self.con.reconnect()
 
-# Función para notificar actualizaciones
-def notificarActualizacionTemperaturaHumedad():
-    pusher_client = pusher.Pusher(
-        app_id='1766037',
-        key='fc838f52101ac3c0e022',
-        secret='f9f1bc16656c8d474a72',
-        cluster='us2',
-        ssl=True
-    )
+    def notificarActualizacion(self):
+        pusher_client = pusher.Pusher(
+            app_id="1766037",
+            key="fc838f52101ac3c0e022",
+            secret="f9f1bc16656c8d474a72",
+            cluster="us2",
+            ssl=True
+        )
 
-    args = {}  # Puedes definir los datos que deseas enviar
-    pusher_client.trigger("canalRegistrosTemperaturaHumedad", "registroTemperaturaHumedad", args)
+        pusher_client.trigger("canalRegistrosTemperaturaHumedad", "registroTemperaturaHumedad", {})
 
-# Ruta para buscar registros
-@app.route("/buscar")
-def buscar():
-    check_connection()
+    def buscar(self):
+        self.check_connection()
 
-    cursor = con.cursor(dictionary=True)
-    cursor.execute("""
-    SELECT Id_Experiencia, Nombre_Apellido, Comentario, Calificacion FROM tst0_experiencias
-    ORDER BY Id_Experiencia DESC
-    LIMIT 10 OFFSET 0
-    """)
-    registros = cursor.fetchall()
+        cursor = self.con.cursor(dictionary=True)
+        cursor.execute("""
+        SELECT Id_Experiencia, Nombre_Apellido, Comentario, Calificacion FROM tst0_experiencias
+        ORDER BY Id_Experiencia DESC
+        LIMIT 10 OFFSET 0
+        """)
+        registros = cursor.fetchall()
 
-    con.close()
-    return make_response(jsonify(registros))
+        self.con.close()
+        return make_response(jsonify(registros))
 
-# Ruta para guardar registros (insertar o actualizar)
-@app.route("/guardar", methods=["POST"])
-def guardar():
-    check_connection()
+    def guardar(self, id, nombre_apellido, comentario, calificacion):
+        self.check_connection()
 
-    id = request.form["id"]
-    Nombre_Apellido = request.form["Nombre_Apellido"]
-    Comentario = request.form["Comentario"]
-    Calificacion = request.form["Calificacion"]
-    cursor = con.cursor()
+        cursor = self.con.cursor()
 
-    if id:  # Si se proporciona el ID, es una actualización
+        if id:
+            sql = """
+            UPDATE tst0_experiencias SET
+            Nombre_Apellido = %s,
+            Comentario = %s,
+            Calificacion = %s
+            WHERE Id_Experiencia = %s
+            """
+            val = (nombre_apellido, comentario, calificacion, id)
+        else:
+            sql = """
+            INSERT INTO tst0_experiencias (Nombre_Apellido, Comentario, Calificacion)
+            VALUES (%s, %s, %s)
+            """
+            val = (nombre_apellido, comentario, calificacion)
+
+        cursor.execute(sql, val)
+        self.con.commit()
+        self.con.close()
+
+        self.notificarActualizacion()
+
+        return make_response(jsonify({}))
+
+    def editar(self, id):
+        self.check_connection()
+
+        cursor = self.con.cursor(dictionary=True)
         sql = """
-        UPDATE tst0_experiencias SET
-        Nombre_Apellido = %s,
-        Comentario     = %s,
-        Calificacion   = %s
+        SELECT Id_Experiencia, Nombre_Apellido, Comentario, Calificacion FROM tst0_experiencias
         WHERE Id_Experiencia = %s
         """
-        val = (Nombre_Apellido, Comentario, Calificacion, id)
-    else:  # Si no hay ID, es una inserción
+        val = (id,)
+
+        cursor.execute(sql, val)
+        registros = cursor.fetchall()
+
+        self.con.close()
+        return make_response(jsonify(registros))
+
+    def eliminar(self, id):
+        self.check_connection()
+
+        cursor = self.con.cursor()
         sql = """
-        INSERT INTO tst0_experiencias (Nombre_Apellido, Comentario, Calificacion)
-        VALUES (%s, %s, %s)
+        DELETE FROM tst0_experiencias
+        WHERE Id_Experiencia = %s
         """
-        val = (Nombre_Apellido, Comentario, Calificacion)
+        val = (id,)
 
-    cursor.execute(sql, val)
-    con.commit()
-    con.close()
+        cursor.execute(sql, val)
+        self.con.commit()
+        self.con.close()
 
-    notificarActualizacionTemperaturaHumedad()
+        self.notificarActualizacion()
 
-    return make_response(jsonify({}))
+        return make_response(jsonify({}))
 
-# Ruta para editar un registro (obtener datos de un registro específico)
+@app.route("/")
+def index():
+    return render_template("app.html")
+
+@app.route("/buscar")
+def buscar():
+    controlador = ControladorExperiencias()
+    return controlador.buscar()
+
+@app.route("/guardar", methods=["POST"])
+def guardar():
+    id = request.form.get("id")
+    nombre_apellido = request.form.get("Nombre_Apellido")
+    comentario = request.form.get("Comentario")
+    calificacion = request.form.get("Calificacion")
+
+    controlador = ControladorExperiencias()
+    return controlador.guardar(id, nombre_apellido, comentario, calificacion)
+
 @app.route("/editar", methods=["GET"])
 def editar():
-    check_connection()
+    id = request.args.get("id")
 
-    id = request.args["id"]
-    cursor = con.cursor(dictionary=True)
-    sql = """
-    SELECT Id_Experiencia, Nombre_Apellido, Comentario, Calificacion FROM tst0_experiencias
-    WHERE Id_Experiencia = %s
-    """
-    val = (id,)
+    controlador = ControladorExperiencias()
+    return controlador.editar(id)
 
-    cursor.execute(sql, val)
-    registros = cursor.fetchall()
-
-    con.close()
-    return make_response(jsonify(registros))
-
-# Ruta para eliminar un registro
 @app.route("/eliminar", methods=["POST"])
 def eliminar():
-    check_connection()
+    id = request.form.get("id")
 
-    id = request.form["id"]
-    cursor = con.cursor(dictionary=True)
-    sql = """
-    DELETE FROM tst0_experiencias
-    WHERE Id_Experiencia = %s
-    """
-    val = (id,)
+    controlador = ControladorExperiencias()
+    return controlador.eliminar(id)
 
-    cursor.execute(sql, val)
-    con.commit()
-    con.close()
-
-    notificarActualizacionTemperaturaHumedad()
-
-    return make_response(jsonify({}))
+if __name__ == "__main__":
+    app.run(debug=True)
